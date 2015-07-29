@@ -82,6 +82,7 @@ class OMXPlayer(object):
     _QUIT_CMD = 'q'
 
     paused = False
+    playing_location = ''
     # KRT turn subtitles off as a command option is used
     subtitles_visible = False
 
@@ -278,7 +279,8 @@ class TBOPlayer:
                 self.paused = False
                 self.stop_required_signal=False     # signal that user has pressed stop
                 self.quit_sent_signal = False          # signal  that q has been sent
-                self.root.title(self.playlist.selected_track_title[:30] + (self.playlist.selected_track_title[30:] and '..') + " - OMXPlayer")
+                self.root.title(self.playlist.selected_track_title[:50] + (self.playlist.selected_track_title[50:] and '..') + " - KingK OMXPlayer")
+                self.playing_location = self.playlist.selected_track_location
                 self.play_state=self._OMX_STARTING
                 
                 #play the selelected track
@@ -366,6 +368,11 @@ class TBOPlayer:
         self.monitor(">play track received") 
         if self.play_state == self._OMX_CLOSED:
             self.play()
+        elif self.playing_location==self.playlist.selected_track_location:
+        		self.toggle_pause()
+        else:
+        		self.stop_track()
+        		self.root.after(1000, self.play_track)
         
 
     def skip_to_next_track(self):
@@ -442,7 +449,7 @@ class TBOPlayer:
             self.monitor("What next, Starting playlist track")
             self.select_next_track()
             self.play()
-            return     
+            return
         elif self.options.mode=='shuffle':
             self.monitor("What next, Starting random track")
             self.random_next_track()
@@ -511,11 +518,11 @@ class TBOPlayer:
 
         #root is the Tkinter root widget
         self.root = tk.Tk()
-        self.root.title("GUI for OMXPlayer")
+        self.root.title("KingK OMXPlayer")
 
         self.root.configure(background='grey')
         # width, height, xoffset, yoffset
-        self.root.geometry('408x300+750+300')
+        self.root.geometry('1024x768+0+0')
         self.root.resizable(False,False)
 
         #defne response to main window closing
@@ -527,31 +534,22 @@ class TBOPlayer:
         self.display_time = tk.StringVar()
 
         #Keys
-        #self.root.bind("<Return>", self.key_return)  #select track
         self.root.bind("<Left>", self.key_left)
         self.root.bind("<Right>", self.key_right)
+        self.root.bind("<Up>", self.key_up)
+        self.root.bind("<Down>", self.key_down)
         self.root.bind("<Shift-Right>", self.key_shiftright)  #forward 600
         self.root.bind("<Shift-Left>", self.key_shiftleft)  #back 600
         self.root.bind("<Control-Right>", self.key_ctrlright)  #previous track      
         self.root.bind("<Control-Left>", self.key_ctrlleft)  #previous track
+        self.root.bind('<Control-v>', self.key_paste)
+        self.root.bind('<Escape>', self.key_escape)
     
         self.root.bind("<Key>", self.key_pressed)
 
 
 # define menu
         menubar = Menu(self.root)
-        filemenu = Menu(menubar, tearoff=0, bg="grey", fg="black")
-        menubar.add_cascade(label='Track', menu = filemenu)
-        filemenu.add_command(label='Add', command = self.add_track)
-        filemenu.add_command(label='Add URL', command = self.add_url)
-        filemenu.add_command(label='Remove', command = self.remove_track)
-        filemenu.add_command(label='Edit', command = self.edit_track)
-        
-        listmenu = Menu(menubar, tearoff=0, bg="grey", fg="black")
-        menubar.add_cascade(label='Playlist', menu = listmenu)
-        listmenu.add_command(label='Open', command = self.open_list)
-        listmenu.add_command(label='Save', command = self.save_list)
-        listmenu.add_command(label='Clear', command = self.clear_list)
 
         omxmenu = Menu(menubar, tearoff=0, bg="grey", fg="black")
         menubar.add_cascade(label='OMX', menu = omxmenu)
@@ -571,35 +569,35 @@ class TBOPlayer:
 
 # define buttons 
 
-        add_button = Button(self.root, width = 5, height = 1, text='Add',
+        add_button = Button(self.root, width = 15, height = 3, text='Add',
                               fg='black', command = self.add_track, bg="light grey")
         add_button.grid(row=0, column=1)
 
-        stop_button = Button(self.root, width = 5, height = 1, text='Stop',
-                             fg='black', command = self.stop_track, bg="light grey")
-        stop_button.grid(row=0, column=4)
+        addurl_button = Button(self.root, width = 15, height = 3, text='Add Url',
+                             fg='black', command = self.add_url, bg="light grey")
+        addurl_button.grid(row=0, column=2)
+        
+        edit_button = Button(self.root, width = 15, height = 3, text='Edit',
+                              fg='black', command = self.edit_track, bg="light grey")
+        edit_button.grid(row=0, column=3)
+        
+        open_button = Button(self.root, width = 15, height = 3, text='Open Playlist',
+                             fg='black', command = self.open_list, bg="light grey")
+        open_button.grid(row=0, column=4)
 
-        pause_button = Button(self.root, width = 5, height = 1, text='Pause',
-                              fg='black', command = self.toggle_pause, bg="light grey")
-        pause_button.grid(row=0, column=3)
-
-        play_button = Button(self.root, width = 5, height = 1, text='Play',
-                             fg='black', command = self.play_track, bg="light grey")
-        play_button.grid(row=0, column=2)
-
-        volplus_button = Button(self.root, width = 5, height = 1,
-                           text = 'Vol +', command = self.volplus,fg='black', bg='light grey')
-        volplus_button.grid(row=0, column=5)
-
-        volminus_button = Button(self.root, width = 5, height = 1,
-                           text = 'Vol -', command = self.volminus,fg='black', bg='light grey')
-        volminus_button.grid(row=0, column=6)
+        save_button = Button(self.root, width = 15, height = 3,
+                           text = 'Save Playlist', command = self.save_list,fg='black', bg='light grey')
+        save_button.grid(row=0, column=5)
+        
+        clear_button = Button(self.root, width = 15, height = 3,
+                           text = 'Clear Playlist', command = self.clear_list,fg='black', bg='light grey')
+        clear_button.grid(row=0, column=6)
 
 # define display of file that is selected
         file_name_label = Label(self.root, font=('Comic Sans', 10),
-                                fg = 'black', wraplength = 300,
+                                fg = 'black', wraplength = 800, height = 2,
                                 textvariable=self.display_selected_track_title, bg="grey")
-        file_name_label.grid(row=3, column=0, columnspan=5)
+        file_name_label.grid(row=3, column=0, columnspan=6)
 
 # define time/status display for selected track
         time_label = Label(self.root, font=('Comic Sans', 11),
@@ -609,18 +607,46 @@ class TBOPlayer:
 
 
 # define display of playlist
-        self.track_titles_display = Listbox(self.root, selectmode=SINGLE, height=15,
-                                    width = 40, bg="white",
+        self.track_titles_display = Listbox(self.root, selectmode=SINGLE, height=30,
+                                    width = 125, bg="white",
                                     fg="black")
         self.track_titles_display.grid(row=4, column=0, columnspan=7)
         self.track_titles_display.bind("<ButtonRelease-1>", self.select_track)
+        self.track_titles_display.bind("<Left>", self.key_left)
+        self.track_titles_display.bind("<Right>", self.key_right)
         self.track_titles_display.bind("<Delete>", self.remove_track)
+        self.track_titles_display.bind("<Return>", self.key_return)
 
 # scrollbar for displaylist
         scrollbar = Scrollbar(self.root, command=self.track_titles_display.yview, orient=tk.VERTICAL)
         scrollbar.grid(row = 4, column=6,sticky='ns')
         self.track_titles_display.config(yscrollcommand=scrollbar.set)
+        
+# define buttons 
 
+        play_button = Button(self.root, width = 15, height = 3, text='Play/Pause',
+                             fg='black', command = self.play_track, bg="light grey")
+        play_button.grid(row=6, column=1)
+        
+        stop_button = Button(self.root, width = 15, height = 3, text='Stop',
+                             fg='black', command = self.stop_track, bg="light grey")
+        stop_button.grid(row=6, column=2)
+
+        previous_button = Button(self.root, width = 15, height = 3, text='Previous Track',
+                              fg='black', command = self.skip_to_previous_track, bg="light grey")
+        previous_button.grid(row=6, column=3)
+
+        next_button = Button(self.root, width = 15, height = 3, text='Next Track',
+                              fg='black', command = self.skip_to_next_track, bg="light grey")
+        next_button.grid(row=6, column=4)
+
+        volplus_button = Button(self.root, width = 15, height = 3,
+                           text = 'Vol +', command = self.volplus,fg='black', bg='light grey')
+        volplus_button.grid(row=6, column=5)
+
+        volminus_button = Button(self.root, width = 15, height = 3,
+                           text = 'Vol -', command = self.volminus,fg='black', bg='light grey')
+        volminus_button.grid(row=6, column=6)
 
 #and display them going with Tkinter event loop
         self.root.mainloop()        
@@ -693,9 +719,39 @@ class TBOPlayer:
 
     def key_ctrlleft(self,event):
         self.skip_to_previous_track()
+        
+    def key_delete(self,event):
+        if  self.playlist.length()>0 and self.playlist.track_is_selected():
+            index= self.playlist.selected_track_index()
+            self.track_titles_display.delete(index,index)
+            self.playlist.remove(index)
+            self.blank_selected_track()
+            self.display_time.set("")
+            
+    def key_paste(self,event):
+        d = EditTrackDialog(self.root,"Add URL",
+                                "Location", "",
+                                "Title", "")
+        if d.result != None:
+            # append it to the playlist
+            self.playlist.append(d.result)
+            # add title to playlist display
+            self.track_titles_display.insert(END, d.result[1])  
+            # and set it as the selected track
+            self.playlist.select(self.playlist.length()-1)
+            self.display_selected_track(self.playlist.selected_track_index())
 
-#    def key_return(self,event):
-#        self.select_track(event)
+    def key_escape(self,event):
+        self.stop_track()
+        
+    def key_up(self,event):
+        self.select_previous_track()
+        
+    def key_down(self,event):
+        self.select_next_track()
+        
+    def key_return(self,event):
+    	  self.play_track()
         
         
     def key_pressed(self,event):
@@ -816,7 +872,6 @@ class TBOPlayer:
             self.playlist.select(index)
             self.display_selected_track(index)
 
-    	
     def select_next_track(self):
         if self.playlist.length()>0:
             if self.playlist.selected_track_index()== self.playlist.length()-1:
@@ -825,15 +880,14 @@ class TBOPlayer:
                 index= self.playlist.selected_track_index()+1
             self.playlist.select(index)
             self.display_selected_track(index)
-
-    	
+            
     def random_next_track(self):
         if self.playlist.length()>0:
             index= randint(0,self.playlist.length()-1)
             self.playlist.select(index)
             self.display_selected_track(index)
 
-    	
+                
     def select_previous_track(self):
         if self.playlist.length()>0:
             if self.playlist.selected_track_index()== 0:
