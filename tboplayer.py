@@ -1,59 +1,25 @@
 #! /usr/bin/env python
 
 """
-A GUI interface using jbaiter's pyomxplayer to control omxplayer
-
-
-INSTALLATION
-*** Instructions for installation on the official Debian Wheezy Raspbian image
-  *  requires the latest bug fixed version of omxplayer which you can get by doing apt-get update then apt-get upgrade or compile from https://github.com/popcornmix/omxplayer/
-  *  install pexpect by following the instructions at www.noah.org/wiki/pexpect
-  *  pyomxplayer is currently included inline in the code as I have made some modifications to jbaiter's version, his original can be seen at https://github.com/jbaiter/pyomxplayer
-  *  download tboplayer.py into a directory
-  *  type python tboplayer.py from a terminal opened in the directory within which tboplayer.py is stored. 
-  *  developed on raspbian wheezy with python 2.7
-  *  2015 version developed on ubuntu mate 15.04
+Note
+- version 0.2+ developed on ubuntu mate 15.04 with python 2.7.9
+- older version developed on raspbian wheezy with python 2.7
+- this GUI interface using jbaiter's pyomxplayer to control omxplayer
   
-OPERATION
-Menus
-====
- Track - add  edit or remove a track from the current playlist
- Playlist - save the current playlist or open a saved one
- OMX - display the track information for the last played track (needs to be enabled in options)
- Options -
-    Audio Output - play sound to hdmi or local output, auto does not send an audio option to omxplayer.
-    Mode - play the Single selected track, Repeat the single track or rotate around the Playlist starting from the selected track.
-    Subtitles - adjust with your own options if required
-    Initial directory for tracks - where Add Track starts looking.
-    Initial directory for playlists - where Open Playlist starts looking
-    OMX player options - add your own (no validation so be careful)
-    Debug - prints some debug text to the command line
-    Generate Track Information - parses the output of omxplayer, disabled by default as it may cause problems with some tracks.
-
-A track is selected using a single click of the mouse, playing is started by pressing the Play button or the . key
-
-During playing of a track a slightly modified set of  omxplayer commands can be used from the keyboard but there must be FOCUS on TBOPlayer.
-A list  of comands is provided in the help menu. Note: some of the commands are not implemented by omxplayer.
-
-If you have problems playing a track try it from the command line with omxplayer -ohdmi file or omxplayer -olocal file
-
 TODO (maybe)
 --------
 Scroll display list with up/down cursor key and select with Return
-sort out black border around some videos
 gapless playback, by running two instances of pyomxplayer
 A proper installer
 read and write m3u and pls playlists
 Fit to every screen size (also resizeable)
-
-
+New UI
 
 PROBLEMS
 ---------------
 I think I might have fixed this but two tracks may play at the same time if you use the controls quickly, you may need to SSH in form another computer and use top -upi and k to kill the omxplayer.bin
-Position thread does not seem to take account of  pause
-mp3 tracks always show position as zero. -1:-40 ?
-
+Position thread does not seem to take account of  pause.
+mp3 tracks always show position as zero.
 """
 
 # pyomxplayer from https://github.com/jbaiter/pyomxplayer
@@ -119,7 +85,7 @@ class OMXPlayer(object):
 
         # **** KenT Added self.position=0. Required if dictionary creation is commented out. Possibly best to leave it in even if not
         #         commented out in case gui reads position before it is first written.
-        self.position=-100.0
+        self.position=0
         
         while True:
             index = self._process.expect([self._STATUS_REXP,
@@ -282,7 +248,7 @@ class TBOPlayer:
                 self.paused = False
                 self.stop_required_signal=False     # signal that user has pressed stop
                 self.quit_sent_signal = False          # signal  that q has been sent
-                self.root.title(self.playlist.selected_track_title[:30] + (self.playlist.selected_track_title[30:] and '..') + " - OMXPlayer")
+                self.root.title(self.playlist.selected_track_title[:30] + (self.playlist.selected_track_title[30:] and '..') + " - TBOPlayer")
                 self.playing_location = self.playlist.selected_track_location
                 self.play_state=self._OMX_STARTING
                 
@@ -525,7 +491,7 @@ class TBOPlayer:
 
         #root is the Tkinter root widget
         self.root = tk.Tk()
-        self.root.title("GUI for OMXPlayer")
+        self.root.title("TBOPlayer")
 
         self.root.configure(background='grey')
         # width, height, xoffset, yoffset
@@ -709,7 +675,7 @@ class TBOPlayer:
   
 
     def about (self):
-        tkMessageBox.showinfo("About","GUI for omxplayer " + versionstring + "\nUsing: jbaiter's pyomxplayer wrapper\nAuthor: Ken Thompson  - KenT\nCo: Karuhut Komol  - popiazaza")
+        tkMessageBox.showinfo("About","TBOPlayer " + versionstring + "\nUsing: jbaiter's pyomxplayer wrapper\nAuthor: Ken Thompson  - KenT\nCo: Karuhut Komol  - popiazaza")
 
     def monitor(self,text):
         if self.options.debug: print text
