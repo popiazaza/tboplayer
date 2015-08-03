@@ -47,7 +47,7 @@ This is specified here http://docs.livestreamer.io/install.html and copied below
 
 From a terminal window open in your home directory type:
 
-         apt-get install livestreamer
+         sudo apt-get install livestreamer
 
 Download and Install TBOPlayer
 ------------------------------
