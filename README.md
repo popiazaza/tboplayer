@@ -123,7 +123,7 @@ Menus
 	
     * Generate Track Information - parses the output of omxplayer, disabled by default as it may cause problems with some tracks.
 
-    * Livestreamer Quality - select the quality of livestreamer's stream. Please mind that not all stream have every quality, Add Livestreamer URL will return nothing if you use wrong quality setting.
+    * Livestreamer Quality - select the quality of livestreamer's stream. Please mind that not all stream have every quality, Add Livestreamer URL will use best quality if you set unaviable quality.
 
 A track is selected using a single click of the mouse or up-down arrow key, playing is started by pressing the Play/Pause button, the . key or the Return key.
 
