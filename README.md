@@ -3,6 +3,8 @@ TBOPLAYER 0.2
 
 A GUI interface using jbaiter's pyomxplayer wrapper to control omxplayer
 
+If you want the simple version of tboplayer please visit https://github.com/KenT2/tboplayer
+
 INSTALLATION
 ============
 
@@ -49,7 +51,7 @@ Download and Install TBOPlayer
 
 From a terminal window open in your home directory type:
 
-         wget https://github.com/popiazaza/tboplayer/tarball/master -O - | tar xz
+         wget https://github.com/popiazaza/tboplayer/tarball/extreme -O - | tar xz
 
 There should now be a directory 'popiazaza-tboplayer-xxxx' in your home directory. Rename the directory to tboplayer
 
