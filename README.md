@@ -115,11 +115,13 @@ Menus
 	
 	* Enable subtitles
 	
-    * OMX player options - add your own (no validation so be careful)
+    * OMX player options - add your own options, read more here https://github.com/popcornmix/omxplayer/blob/master/README.md (no validation so be careful)
 	
     * Debug - prints some debug text to the command line
 	
     * Generate Track Information - parses the output of omxplayer, disabled by default as it may cause problems with some tracks.
+
+    * Livestreamer Quality - select the quality of livestreamer's stream. Please mind that not all stream have every quality, Add Livestreamer URL will return nothing if you use wrong quality setting.
 
 A track is selected using a single click of the mouse or up-down arrow key, playing is started by pressing the Play/Pause button, the . key or the Return key.
 
