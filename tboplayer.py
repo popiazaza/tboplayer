@@ -230,6 +230,8 @@ import tkFont
 import csv
 import os
 import ConfigParser
+import youtube_dl
+import livestreamer
 
 
 #**************************
@@ -559,6 +561,8 @@ class TBOPlayer:
         menubar.add_cascade(label='Track', menu = filemenu)
         filemenu.add_command(label='Add', command = self.add_track)
         filemenu.add_command(label='Add URL', command = self.add_url)
+        filemenu.add_command(label='Add Youtube URL', command = self.add_youtube_url)
+        filemenu.add_command(label='Add Livestreamer URL', command = self.add_livestreamer_url)
         filemenu.add_command(label='Remove', command = self.remove_track)
         filemenu.add_command(label='Edit', command = self.edit_track)
         
@@ -705,8 +709,7 @@ class TBOPlayer:
   
 
     def about (self):
-        tkMessageBox.showinfo("About","GUI for omxplayer using jbaiter's pyomxplayer wrapper\n"
-                   +"Version dated: " + datestring + "\nAuthor: Ken Thompson  - KenT")
+        tkMessageBox.showinfo("About","GUI for omxplayer " + versionstring + "\nUsing: jbaiter's pyomxplayer wrapper\nAuthor: Ken Thompson  - KenT\nCo: Karuhut Komol  - popiazaza")
 
     def monitor(self,text):
         if self.options.debug: print text
@@ -846,6 +849,72 @@ class TBOPlayer:
 	self.playlist.select(index)
 	self.display_selected_track(self.playlist.selected_track_index())
 
+    def add_youtube_url(self):
+        d = EditTrackDialog(self.root,"Add Youtube URL",
+                                "Title", "",
+                                "Location", "")
+        if d.result == None:
+            return
+        if d.result[0] == '':
+            d.result = (d.result[1],d.result[1])
+        else:
+            d.result = (d.result[1],d.result[0])
+        if d.result[1] != '':
+        	
+            ydl = youtube_dl.YoutubeDL({'outtmpl': '%(id)s%(ext)s'})
+            with ydl:
+                result = ydl.extract_info(
+                    d.result[0],
+                    download=False # We just want to extract the info
+                )
+            if 'entries' in result:
+                video = result['entries'][0]
+            else:
+                video = result
+            video_url = video['url']
+            d.result = (video_url,d.result[1])
+        		
+            # append it to the playlist
+            self.playlist.append(d.result)
+            # add title to playlist display
+            self.track_titles_display.insert(END, d.result[1])  
+            # and set it as the selected track
+            self.playlist.select(self.playlist.length()-1)
+            self.display_selected_track(self.playlist.selected_track_index())
+
+    def add_livestreamer_url(self):
+        d = EditTrackDialog(self.root,"Add Livestreamer URL",
+                                "Title", "",
+                                "Location", "")
+        if d.result == None:
+            return
+        if d.result[0] == '':
+            d.result = (d.result[1],d.result[1])
+        else:
+            d.result = (d.result[1],d.result[0])
+        if d.result[1] != '':
+            try:
+            	streams = livestreamer.streams(d.result[0])
+            except NoPluginError:
+            	self.monitor("Livestreamer is unable to handle the URL '{0}'".format(url))
+            except PluginError as err:
+            	self.monitor("Plugin error: {0}".format(err))
+            if not streams:
+            	self.monitor("No streams found on URL '{0}'".format(url))
+            if self.options.livestreamer_options not in streams:
+            	self.monitor("Unable to find '{0}' stream on URL '{1}'".format(quality, url))
+            	stream = streams["source"]
+            else:
+            	stream = streams[self.options.livestreamer_options]
+            d.result = (stream.url,d.result[1])
+            # append it to the playlist
+            self.playlist.append(d.result)
+            # add title to playlist display
+            self.track_titles_display.insert(END, d.result[1])  
+            # and set it as the selected track
+            self.playlist.select(self.playlist.length()-1)
+            self.display_selected_track(self.playlist.selected_track_index())
+
     def add_url(self):
         d = EditTrackDialog(self.root,"Add URL",
                                 "Title", "",
@@ -881,6 +950,7 @@ class TBOPlayer:
                                 "Title", self.playlist.selected_track_title,
                                 "Location", self.playlist.selected_track_location)
             if d.result != None:
+                d.result = (d.result[1],d.result[0])
                 self.playlist.replace(index, d.result)
                 self.playlist.select(index)               
                 self.display_selected_track(index)
@@ -1014,6 +1084,7 @@ class Options:
         self.mode = ""
         self.initial_track_dir =""   #initial directory for add track.
         self.initial_playlist_dir =""   #initial directory for open playlist      
+        self.livestreamer_options = "" # livestreamer options suppplied by user      
         self.omx_user_options = ""  # omx options suppplied by user, audio overidden by audio option (HDMI or local)
         self.debug = False  # print debug information to terminal
         self.generate_track_info = False  #generate track information from omxplayer output
@@ -1040,6 +1111,7 @@ class Options:
         self.mode = config.get('config','mode',0)
         self.initial_track_dir =config.get('config','tracks',0)
         self.initial_playlist_dir =config.get('config','playlists',0)    
+        self.livestreamer_options =config.get('config','livestreamer',0)
         self.omx_user_options =config.get('config','omx_options',0)
 
         if config.get('config','debug',0) == 'on':
@@ -1066,6 +1138,7 @@ class Options:
         config.set('config','mode','single')
         config.set('config','playlists','')
         config.set('config','tracks','')
+        config.set('config','livestreamer','source')
         config.set('config','omx_options','')
         config.set('config','debug','off')
         config.set('config','track_info','off')
@@ -1133,7 +1206,13 @@ class OptionsDialog(tkSimpleDialog.Dialog):
             self.cb_subtitles.select()
         else:
             self.cb_subtitles.deselect()
-
+            
+        Label(master, text="").grid(row=36, sticky=W)
+        Label(master, text="Livestreamer options:").grid(row=37, sticky=W)
+        self.e_livestreamer = Entry(master)
+        self.e_livestreamer.grid(row=38)
+        self.e_livestreamer.insert(0,config.get('config','livestreamer',0))
+        
         Label(master, text="").grid(row=40, sticky=W)
         Label(master, text="OMXPlayer options:").grid(row=41, sticky=W)
         self.e_omx_options = Entry(master)
@@ -1171,6 +1250,7 @@ class OptionsDialog(tkSimpleDialog.Dialog):
         config.set('config','mode',self.mode_var.get())
         config.set('config','playlists',self.e_playlists.get())
         config.set('config','tracks',self.e_tracks.get())
+        config.set('config','livestreamer',self.e_livestreamer.get())
         config.set('config','omx_options',self.e_omx_options.get())
         config.set('config','debug',self.debug_var.get())
         config.set('config','track_info',self.track_info_var.get())
@@ -1303,6 +1383,6 @@ class PlayList():
 
 
 if __name__ == "__main__":
-    datestring=" 30 July 2015"
+    versionstring="0.2"
     bplayer = TBOPlayer()
 
