@@ -1,3 +1,6 @@
+TBOPLAYER 0.2
+============
+
 A GUI interface using jbaiter's pyomxplayer wrapper to control omxplayer
 
 INSTALLATION
@@ -27,6 +30,24 @@ From a terminal window open in your home directory type:
          cd pexpect-2.3
          sudo python ./setup.py install
 
+Download and Install youtube-dl
+-----------------------------
+
+This is specified here https://rg3.github.io/youtube-dl/download.html and copied below:
+
+From a terminal window open in your home directory type:
+
+         sudo wget https://yt-dl.org/downloads/latest/youtube-dl -O /usr/local/bin/youtube-dl
+         sudo chmod a+rx /usr/local/bin/youtube-dl
+
+Download and Install livestreamer
+-----------------------------
+
+This is specified here http://docs.livestreamer.io/install.html and copied below:
+
+From a terminal window open in your home directory type:
+
+         apt-get install livestreamer
 
 Download and Install TBOPlayer
 ------------------------------
@@ -71,7 +92,7 @@ Buttons
 
 Menus
 -----
-* Track - add  edit or remove a track from the current playlist
+* Track - add edit or remove a track from the current playlist
  
 * Playlist - save the current playlist or open a saved one
  
