@@ -54,16 +54,22 @@ Download and Install TBOPlayer
 
 From a terminal window open in your home directory type:
 
-         wget https://github.com/KenT2/tboplayer/tarball/master -O - | tar xz
+         wget https://github.com/popiazaza/tboplayer/tarball/master -O - | tar xz
 
-There should now be a directory 'KenT2-tboplayer-xxxx' in your home directory. Rename the directory to tboplayer
+There should now be a directory 'popiazaza-tboplayer-xxxx' in your home directory. Rename the directory to tboplayer
 
 Open the tboplayer directory and from a terminal opened in THIS directory:
 
-		python tboplayer.py
+		sudo python tboplayer.py
 
-		
-TBOPlayer is developed on Raspbian Wheezy with python 2.7
+If you want larger player, you can type one of these instead:
+
+		sudo python tboplayer1024x768.py
+		sudo python tboplayer1366x768.py
+		sudo python tboplayer1920x1080.py
+
+You can request me for more screen resolution, or you can make one for yourself by edit few python code.
+Sudo is not require to use tboplayer but omxplayer might use it.
  
  
 OPERATION
