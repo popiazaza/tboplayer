@@ -94,6 +94,10 @@ Menus
 -----
 * Track - add edit or remove a track from the current playlist
  
+   * Add Youtube URL - ex. http://www.youtube.com/watch?v=ABC12345, please mind that the regex goes to youtube-dl directly
+ 
+   * Add Livestreamer URL - ex. twitch.tv/esl_csgo, please mind that the regex goes to livestreamer directly
+
 * Playlist - save the current playlist or open a saved one
  
 * OMX - display the track information for the last played track (needs to be enabled in options)
