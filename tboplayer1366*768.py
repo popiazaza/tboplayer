@@ -8,17 +8,11 @@ Note
   
 TODO (maybe)
 --------
-Scroll display list with up/down cursor key and select with Return
-gapless playback, by running two instances of pyomxplayer
-A proper installer
-read and write m3u and pls playlists
-Fit to every screen size (also resizeable)
-New UI
-Youtube + livestreamer regex
+REMAKE!!!
 
 PROBLEMS
 ---------------
-I think I might have fixed this but two tracks may play at the same time if you use the controls quickly, you may need to SSH in form another computer and use top -upi and k to kill the omxplayer.bin
+Use many command at the same time may cause a problem.
 Position thread does not seem to take account of  pause.
 mp3 tracks always show position as zero.
 """
@@ -249,7 +243,7 @@ class TBOPlayer:
                 self.paused = False
                 self.stop_required_signal=False     # signal that user has pressed stop
                 self.quit_sent_signal = False          # signal  that q has been sent
-                self.root.title(self.playlist.selected_track_title[:30] + (self.playlist.selected_track_title[30:] and '..') + " - TBOPlayer")
+                self.root.title(self.playlist.selected_track_title[:130] + (self.playlist.selected_track_title[130:] and '..') + " - TBOPlayer")
                 self.playing_location = self.playlist.selected_track_location
                 self.play_state=self._OMX_STARTING
                 
@@ -609,7 +603,7 @@ class TBOPlayer:
 
 # define display of file that is selected
         file_name_label = Label(self.root, font=('Comic Sans', 10),
-                                fg = 'black', wraplength = 300, height = 2,
+                                fg = 'black', wraplength = 900, height = 2,
                                 textvariable=self.display_selected_track_title, bg="grey")
         file_name_label.grid(row=3, column=0, columnspan=6)
 
@@ -870,7 +864,7 @@ class TBOPlayer:
             	self.monitor("No streams found on URL '{0}'".format(url))
             if self.options.livestreamer_options not in streams:
             	self.monitor("Unable to find '{0}' stream on URL '{1}'".format(quality, url))
-            	stream = streams["source"]
+            	stream = streams["best"]
             else:
             	stream = streams[self.options.livestreamer_options]
             d.result = (stream.url,d.result[1])
@@ -1168,7 +1162,7 @@ class OptionsDialog(tkSimpleDialog.Dialog):
             self.cb_debug.deselect()
 
         self.track_info_var = StringVar()
-        self.cb_track_info = Checkbutton(master,text="Generate Track Information", variable= self.track_info_var, onvalue="on",offvalue="off")
+        self.cb_track_info = Checkbutton(master,text="Generate Track Info", variable= self.track_info_var, onvalue="on",offvalue="off")
         self.cb_track_info.grid(row=14,columnspan=2, sticky = W)
         if config.get('config','track_info',0)=="on":
             self.cb_track_info.select()
@@ -1178,32 +1172,36 @@ class OptionsDialog(tkSimpleDialog.Dialog):
         Label(master, text="Livestreamer Quality:").grid(row=0,column=1, sticky=W)
         self.e_livestreamer=StringVar()
         self.e_livestreamer.set(config.get('config','livestreamer',0))
+        rb_best=Radiobutton(master, text="Best", variable=self.e_livestreamer, value="best")
+        rb_best.grid(row=1,column=1,sticky=W)
         rb_source=Radiobutton(master, text="Source", variable=self.e_livestreamer, value="source")
-        rb_source.grid(row=1,column=1,sticky=W)
+        rb_source.grid(row=2,column=1,sticky=W)
         rb_high=Radiobutton(master, text="High", variable=self.e_livestreamer,value="high")
-        rb_high.grid(row=2,column=1,sticky=W)
+        rb_high.grid(row=3,column=1,sticky=W)
         rb_medium=Radiobutton(master, text="Medium", variable=self.e_livestreamer,value="medium")
-        rb_medium.grid(row=3,column=1,sticky=W)
+        rb_medium.grid(row=4,column=1,sticky=W)
         rb_low=Radiobutton(master, text="Low", variable=self.e_livestreamer,value="low")
-        rb_low.grid(row=4,column=1,sticky=W)
+        rb_low.grid(row=5,column=1,sticky=W)
         rb_mobile=Radiobutton(master, text="Mobile", variable=self.e_livestreamer,value="mobile")
-        rb_mobile.grid(row=5,column=1,sticky=W)
+        rb_mobile.grid(row=6,column=1,sticky=W)
+        rb_worst=Radiobutton(master, text="Worst", variable=self.e_livestreamer,value="worst")
+        rb_worst.grid(row=7,column=1,sticky=W)
         rb_audio=Radiobutton(master, text="Audio", variable=self.e_livestreamer,value="audio")
-        rb_audio.grid(row=6,column=1,sticky=W)
+        rb_audio.grid(row=8,column=1,sticky=W)
         
-        Label(master, text="Initial directory for tracks:").grid(row=8,column=1, sticky=W)
+        Label(master, text="Initial directory for tracks:").grid(row=10,column=1, sticky=W)
         self.e_tracks = Entry(master)
-        self.e_tracks.grid(row=9,column=1)
+        self.e_tracks.grid(row=11,column=1)
         self.e_tracks.insert(0,config.get('config','tracks',0))
 
-        Label(master, text="Inital directory for playlists:").grid(row=11,column=1, sticky=W)
+        Label(master, text="Inital directory for playlists:").grid(row=12,column=1, sticky=W)
         self.e_playlists = Entry(master)
-        self.e_playlists.grid(row=12,column=1)
+        self.e_playlists.grid(row=13,column=1)
         self.e_playlists.insert(0,config.get('config','playlists',0))
 
         self.subtitles_var = StringVar()
         self.cb_subtitles = Checkbutton(master,text="Subtitles",variable=self.subtitles_var, onvalue="on",offvalue="off")
-        self.cb_subtitles.grid(row=13,column=1,columnspan=2, sticky = W)
+        self.cb_subtitles.grid(row=14,column=1,columnspan=2, sticky = W)
         if config.get('config','subtitles',0)=="on":
             self.cb_subtitles.select()
         else:
