@@ -8,15 +8,10 @@ INSTALLATION
 
 Instructions for installation on the official Raspbian image
 
-Update omxplayer
+Install/Update omxplayer
 ---------------
 
-Ensure you have the latest version of omxplayer by typing the following in a terminal window open in the home directory:
-
-         sudo apt-get update
-		 
-		 sudo apt-get upgrade
-
+Ensure you have the latest version of omxplayer by download and install the lastest build here http://omxplayer.sconde.net/
 		 
 Download and Install pexpect
 -----------------------------
